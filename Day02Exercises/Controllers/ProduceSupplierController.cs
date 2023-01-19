@@ -13,63 +13,52 @@ namespace Day02Exercises.Controllers
     [ApiController]
     public class ProduceSupplierController : ControllerBase
     {
+        private readonly ProduceSupplierRepo _repo;
         private readonly ProduceDBContext _context;
 
         public ProduceSupplierController(ProduceDBContext context)
         {
+            _repo = new ProduceSupplierRepo(context);
             _context = context;
         }
 
         // GET: api/ProduceSupplier
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProduceSupplier>>> GetProduceSuppliers()
+        public async Task<ActionResult<IEnumerable<ProduceSupplier>>> GetProduceSupplierList()
         {
-            return await _context.ProduceSuppliers.ToListAsync();
+            return Ok(await _repo.GetProduceSupplierList());
         }
 
         // GET: api/ProduceSupplier/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ProduceSupplier>> GetProduceSupplier(int id)
+        [HttpGet("{produceID}/{supplierID}")]
+        public async Task<ActionResult<ProduceSupplier>> GetProduceSupplier(int produceID, int supplierID)
         {
-            var produceSupplier = await _context.ProduceSuppliers.FindAsync(id);
+            ProduceSupplier? produceSupplier = await _repo.GetProduceSupplier(produceID, supplierID);
 
             if (produceSupplier == null)
             {
-                return NotFound();
+                return NotFound(new { produceID, supplierID });
             }
 
-            return produceSupplier;
+            return Ok(produceSupplier);
         }
 
         // PUT: api/ProduceSupplier/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduceSupplier(int id, ProduceSupplier produceSupplier)
+        [HttpPut]
+        public async Task<IActionResult> PutProduceSupplier(ProduceSupplier produceSupplier)
         {
-            if (id != produceSupplier.ProduceID)
+            int statusCode = await _repo.UpdateProduceSupplier(produceSupplier);
+            switch (statusCode)
             {
-                return BadRequest();
+                case 200:
+                    return Ok(produceSupplier);
+                case 404:
+                    return NotFound(produceSupplier);
+                default:
+                    return BadRequest(produceSupplier);
             }
 
-            _context.Entry(produceSupplier).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProduceSupplierExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/ProduceSupplier
@@ -77,45 +66,28 @@ namespace Day02Exercises.Controllers
         [HttpPost]
         public async Task<ActionResult<ProduceSupplier>> PostProduceSupplier(ProduceSupplier produceSupplier)
         {
-            _context.ProduceSuppliers.Add(produceSupplier);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (ProduceSupplierExists(produceSupplier.ProduceID))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetProduceSupplier", new { id = produceSupplier.ProduceID }, produceSupplier);
+            int statusCode = await _repo.AddProduceSupplier(produceSupplier);
+            switch (statusCode) {
+                case 200:
+                    return Ok(produceSupplier);
+                default:
+                    return BadRequest(produceSupplier);
+            }            
         }
 
         // DELETE: api/ProduceSupplier/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduceSupplier(int id)
+        [HttpDelete("{produceID}/{supplierID}")]
+        public async Task<IActionResult> DeleteProduceSupplier(int produceID, int supplierID)
         {
-            var produceSupplier = await _context.ProduceSuppliers.FindAsync(id);
-            if (produceSupplier == null)
-            {
-                return NotFound();
+            int statusCode = await _repo.DeleteProduceSupplier(produceID, supplierID);
+            switch (statusCode) {
+                case 200:
+                    return Ok(new {produceID, supplierID});
+                case 404:
+                    return NotFound(new { produceID, supplierID });
+                default:
+                    return BadRequest(new { produceID, supplierID });
             }
-
-            _context.ProduceSuppliers.Remove(produceSupplier);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ProduceSupplierExists(int id)
-        {
-            return _context.ProduceSuppliers.Any(e => e.ProduceID == id);
         }
     }
 }

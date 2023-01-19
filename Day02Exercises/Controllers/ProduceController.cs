@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Day02Exercises.Models;
+using NuGet.Protocol;
 
 namespace Day02Exercises.Controllers
 {
@@ -24,30 +25,27 @@ namespace Day02Exercises.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produce>>> GetProduceList()
         {
-            return Ok(await _produceRepo.getProduceList());
+            return Ok(await _produceRepo.GetProduceList());
         }
 
         // GET: api/Produce/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Produce>> GetProduce(int id)
+        [HttpGet("{produceID}")]
+        public async Task<ActionResult<Produce>> GetProduce(int produceID)
         {
-            Produce? produce = await _produceRepo.getProduce(id);
+            Produce? produce = await _produceRepo.GetProduce(produceID);
             if (produce == null)
             {
-                return NotFound(id);
+                return NotFound(produceID);
             }
             return Ok(produce);
         }
 
         // PUT: api/Produce/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduce(int id, Produce produce)
+        [HttpPut]
+        public async Task<IActionResult> PutProduce(Produce produce)
         {
-            if (id != produce.ProduceID) {
-                return BadRequest(produce);
-            }
-            int statusCode = await _produceRepo.updateProduce(produce);
+            int statusCode = await _produceRepo.UpdateProduce(produce);
             switch (statusCode) {
                 case 200:
                     return Ok(produce);
@@ -63,9 +61,9 @@ namespace Day02Exercises.Controllers
         [HttpPost]
         public async Task<ActionResult<Produce>> PostProduce(Produce produce)
         {
-            int statusCode = await _produceRepo.addProduce(produce);
+            int statusCode = await _produceRepo.AddProduce(produce);
             switch (statusCode) {
-                case 201:
+                case 200:
                     return Ok(produce);
                 default:
                     return BadRequest(produce);
@@ -73,15 +71,17 @@ namespace Day02Exercises.Controllers
         }
 
         // DELETE: api/Produce/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduce(int id)
+        [HttpDelete("{produceID}")]
+        public async Task<IActionResult> DeleteProduce(int produceID)
         {
-            int statusCode = await _produceRepo.deleteProduce(id);
+            int statusCode = await _produceRepo.DeleteProduce(produceID);
             switch (statusCode) {
                 case 200:
-                    return Ok(id);
+                    return Ok(produceID);
+                case 404:
+                    return NotFound(produceID);
                 default:
-                    return BadRequest(id);
+                    return BadRequest(produceID);
             }
         }
     }

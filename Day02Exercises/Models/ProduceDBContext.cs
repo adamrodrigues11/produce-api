@@ -7,11 +7,6 @@ namespace Day02Exercises.Models
         public ProduceDBContext(DbContextOptions<ProduceDBContext> options)
         : base(options) { }
 
-        // Define entity collections.
-        public DbSet<Produce> Produces { get; set; }
-        public DbSet<Supplier> Suppliers { get; set; }
-        public DbSet<ProduceSupplier> ProduceSuppliers { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Define composite primary keys.
@@ -20,15 +15,15 @@ namespace Day02Exercises.Models
 
             // Define foreign keys here. Do not use foreign key annotations.
             modelBuilder.Entity<ProduceSupplier>()
-                .HasOne(p => p.Produce)
+                .HasOne<Produce>(ps => ps.Produce)
                 .WithMany(p => p.ProduceSuppliers)
-                .HasForeignKey(fk => new { fk.ProduceID })
+                .HasForeignKey(ps => new { ps.ProduceID })
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
 
             modelBuilder.Entity<ProduceSupplier>()
-                .HasOne(p => p.Supplier)
-                .WithMany(p => p.ProduceSuppliers)
-                .HasForeignKey(fk => new { fk.SupplierID })
+                .HasOne<Supplier>(ps => ps.Supplier)
+                .WithMany(s => s.ProduceSuppliers)
+                .HasForeignKey(ps => new { ps.SupplierID })
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
 
             modelBuilder.Entity<Produce>().HasData(
@@ -45,6 +40,11 @@ namespace Day02Exercises.Models
                 new ProduceSupplier { SupplierID = 2, ProduceID = 2, Qty = 12 },
                 new ProduceSupplier { SupplierID = 1, ProduceID = 3, Qty = 30 });
         }
+
+        // Define entity collections.
+        public DbSet<Produce> Produces { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<ProduceSupplier> ProduceSuppliers { get; set; }
 
     }
 }
