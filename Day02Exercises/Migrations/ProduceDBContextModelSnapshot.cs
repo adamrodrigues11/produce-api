@@ -58,12 +58,10 @@ namespace Day02Exercises.Migrations
             modelBuilder.Entity("Day02Exercises.Models.ProduceSupplier", b =>
                 {
                     b.Property<int>("ProduceID")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
+                        .HasColumnType("int");
 
                     b.Property<int>("SupplierID")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("Qty")
                         .HasColumnType("int");

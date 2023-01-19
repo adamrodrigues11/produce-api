@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Day02Exercises.Migrations
 {
     [DbContext(typeof(ProduceDBContext))]
-    [Migration("20230111222047_initialCreate")]
+    [Migration("20230112004311_initialCreate")]
     partial class initialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,12 +60,10 @@ namespace Day02Exercises.Migrations
             modelBuilder.Entity("Day02Exercises.Models.ProduceSupplier", b =>
                 {
                     b.Property<int>("ProduceID")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
+                        .HasColumnType("int");
 
                     b.Property<int>("SupplierID")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("Qty")
                         .HasColumnType("int");
